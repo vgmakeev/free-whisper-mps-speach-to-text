@@ -1,20 +1,51 @@
 # 🎙️ Whisper Transcribe
 
-Audio/video transcription using OpenAI Whisper with Apple Silicon MPS acceleration.
+**Free, fast, offline speech-to-text for Mac with Apple Silicon.**
 
-## Installation
+Convert any audio or video file to text using OpenAI's Whisper model — running 100% locally on your Mac with GPU acceleration via Metal Performance Shaders (MPS).
+
+> ✅ No API keys · ✅ No cloud upload · ✅ No costs · ✅ Works offline
+
+---
+
+## ⚡ Quick Start
+
+**1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) (if you haven't):**
 
 ```bash
-uv tool install ~/.dev/whisper-transcribe
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Or run without installing:
+**2. Install the tool:**
 
 ```bash
-uvx --from ~/.dev/whisper-transcribe transcribe file.mp3
+uv tool install git+https://github.com/vgmakeev/free-whisper-mps-speach-to-text.git
 ```
 
-## Usage
+**3. Transcribe!**
+
+```bash
+transcribe meeting.mp4
+```
+
+That's it! The transcript will be saved as a Markdown file next to your video.
+
+---
+
+## 🎯 Features
+
+| Feature | Description |
+|---------|-------------|
+| 🚀 **Apple Silicon optimized** | Uses MPS for GPU acceleration on M1/M2/M3/M4 |
+| 🌍 **99 languages** | Auto-detects language or specify manually |
+| 📁 **Any format** | MP3, WAV, M4A, MP4, WebM, MKV, and more |
+| 📝 **Markdown output** | Clean format with timestamps |
+| 🔒 **100% private** | Everything runs locally on your Mac |
+| 💰 **Completely free** | No API costs, no subscriptions |
+
+---
+
+## 📖 Usage
 
 ```bash
 transcribe <file> [options]
@@ -24,79 +55,129 @@ transcribe <file> [options]
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `-m, --model` | Whisper model (tiny/base/small/medium/large/large-v2/large-v3) | medium |
-| `-l, --lang` | Language code (ru, en, etc.) | auto-detect |
-| `-o, --output` | Output file path | `./Transcripts/<date> <name> Transcript.md` |
-| `-p, --prompt` | Initial prompt for context | none |
+| `-m, --model` | Model size: `tiny`, `base`, `small`, `medium`, `large` | `medium` |
+| `-l, --lang` | Language code (`en`, `ru`, `es`, etc.) | auto-detect |
+| `-o, --output` | Custom output path | `./Transcripts/<name>.md` |
+| `-p, --prompt` | Context hint for better accuracy | none |
 
 ### Examples
 
 ```bash
-# Basic transcription (auto-detect language)
-transcribe meeting.webm
+# Basic usage (auto-detect language)
+transcribe podcast.mp3
 
-# Use large model for better quality
-transcribe podcast.mp3 --model large
+# Use larger model for better accuracy
+transcribe interview.wav --model large
 
-# Specify language
-transcribe interview.m4a --lang en
+# Specify language for faster processing
+transcribe meeting.webm --lang en
 
-# Custom output path
-transcribe call.wav --output ./my-transcript.md
+# Add context for domain-specific terms
+transcribe lecture.mp4 --prompt "Machine learning lecture about neural networks"
 
-# With context prompt
-transcribe lecture.mp4 --prompt "Technical lecture about machine learning"
+# Custom output location
+transcribe call.m4a --output ~/Documents/call-notes.md
 ```
 
-## Supported Formats
+---
 
-**Audio:** mp3, wav, m4a, flac, ogg, wma, aac  
-**Video:** mp4, webm, mkv, avi, mov
+## 🧠 Models
 
-## Models
+Models are downloaded automatically on first use (~1-2 min).
 
-| Model | Size | Speed | Quality |
-|-------|------|-------|---------|
-| tiny | 39 MB | Fastest | Basic |
-| base | 74 MB | Fast | Good |
-| small | 244 MB | Medium | Better |
-| **medium** | 769 MB | Slower | Great |
-| large | 1.5 GB | Slow | Best |
-| large-v3 | 1.5 GB | Slow | Best |
+| Model | Size | Speed* | Best for |
+|-------|------|--------|----------|
+| `tiny` | 39 MB | ~10x | Quick drafts |
+| `base` | 74 MB | ~7x | Casual use |
+| `small` | 244 MB | ~4x | Good balance |
+| **`medium`** | 769 MB | ~2x | **Recommended** |
+| `large` | 1.5 GB | 1x | Maximum accuracy |
 
-Models are downloaded automatically to `~/.cache/whisper/` on first use.
+*Speed relative to audio duration on Apple Silicon
 
-## Output
+---
 
-Markdown file with YAML frontmatter:
+## 📄 Output Format
+
+Transcripts are saved as Markdown with metadata:
 
 ```markdown
 ---
 type: transcript
 date: 2025-01-03
-source: "[[meeting.webm]]"
+source: "[[meeting.mp4]]"
 duration: 45.2 min
-language: ru
-device: mps
+language: en
 model: medium
 ---
 
 # Transcript: meeting
 
-**[00:00]** Hello everyone...
+**[00:00]** Hello everyone, let's get started...
 
-**[00:15]** Let's discuss the project...
+**[00:15]** Today we'll discuss the quarterly results...
 ```
 
-## Management
+---
+
+## 🔧 Management
 
 ```bash
-# Upgrade
+# Update to latest version
 uv tool upgrade whisper-transcribe
 
 # Uninstall
 uv tool uninstall whisper-transcribe
 
-# Clear model cache
+# Clear downloaded models (to free ~1.5 GB)
 rm -rf ~/.cache/whisper
 ```
+
+---
+
+## 💻 Requirements
+
+- macOS with Apple Silicon (M1/M2/M3/M4)
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) package manager
+- ~2 GB free disk space (for models)
+
+---
+
+## 🤔 FAQ
+
+<details>
+<summary><b>Does it work on Intel Macs?</b></summary>
+
+Yes, but without GPU acceleration. It will use CPU which is significantly slower.
+</details>
+
+<details>
+<summary><b>How accurate is it?</b></summary>
+
+Whisper is one of the best open-source speech recognition models. The `medium` model provides excellent accuracy for most use cases. Use `large` for critical transcriptions.
+</details>
+
+<details>
+<summary><b>Can I transcribe in multiple languages?</b></summary>
+
+Yes! Whisper supports 99 languages. It auto-detects the language, or you can specify it with `--lang`.
+</details>
+
+<details>
+<summary><b>How long does transcription take?</b></summary>
+
+With `medium` model on Apple Silicon: roughly 4-5 minutes for a 1-hour recording.
+</details>
+
+---
+
+## 📜 License
+
+MIT — use freely for personal and commercial projects.
+
+---
+
+<p align="center">
+  <b>⭐ Star this repo if you find it useful!</b>
+</p>
