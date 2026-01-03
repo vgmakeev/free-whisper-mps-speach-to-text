@@ -1,7 +1,7 @@
 [project]
 name = "whisper-transcribe"
-version = "0.1.0"
-description = "Video transcription using OpenAI Whisper with Apple Silicon MPS support"
+version = "0.2.0"
+description = "Audio/video transcription using OpenAI Whisper with Apple Silicon MPS support. CLI + MCP server."
 requires-python = ">=3.12"
 dependencies = [
     "openai-whisper",
@@ -9,10 +9,12 @@ dependencies = [
     "torchvision",
     "torchaudio",
     "rich",
+    "mcp",
 ]
 
 [project.scripts]
 transcribe = "whisper_transcribe.cli:main"
+transcribe-mcp = "whisper_transcribe.server:main"
 
 [build-system]
 requires = ["hatchling"]
