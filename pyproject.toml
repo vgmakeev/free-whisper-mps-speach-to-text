@@ -1,13 +1,10 @@
 [project]
 name = "whisper-transcribe"
-version = "0.2.0"
-description = "Audio/video transcription using OpenAI Whisper with Apple Silicon MPS support. CLI + MCP server."
+version = "0.3.0"
+description = "Audio/video transcription using MLX Whisper, optimized for Apple Silicon. CLI + MCP server."
 requires-python = ">=3.12"
 dependencies = [
-    "openai-whisper",
-    "torch",
-    "torchvision",
-    "torchaudio",
+    "mlx-whisper",
     "rich",
     "mcp",
 ]

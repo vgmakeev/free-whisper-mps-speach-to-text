@@ -1,6 +1,6 @@
-"""Whisper Transcribe - Audio/video transcription using OpenAI Whisper."""
+"""Whisper Transcribe - Audio/video transcription using MLX Whisper (Apple Silicon optimized)."""
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 from .core import (
     AVAILABLE_MODELS,

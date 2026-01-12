@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CLI for audio/video transcription using OpenAI Whisper.
+CLI for audio/video transcription using MLX Whisper (Apple Silicon optimized).
 """
 
 import argparse
@@ -24,7 +24,7 @@ def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(
         prog="transcribe",
-        description="Transcribe audio/video files using OpenAI Whisper with Apple Silicon MPS support.",
+        description="Transcribe audio/video files using MLX Whisper (optimized for Apple Silicon).",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -41,9 +41,9 @@ Examples:
     )
     parser.add_argument(
         "-m", "--model",
-        choices=AVAILABLE_MODELS,
+        choices=list(AVAILABLE_MODELS.keys()),
         default="medium",
-        help="Whisper model to use (default: medium)",
+        help="Whisper model to use (default: medium). Options: tiny, base, small, medium, large, turbo",
     )
     parser.add_argument(
         "-l", "--lang",
@@ -81,10 +81,7 @@ Examples:
         nonlocal progress_ctx, task_id
         
         if stage == "device":
-            if "mps" in message.lower():
-                console.print("[green]🚀 Using MPS (Apple Silicon)[/green]")
-            else:
-                console.print("[yellow]⚠️ MPS unavailable, using CPU[/yellow]")
+            console.print("[green]🚀 Using MLX (Apple Silicon GPU)[/green]")
         elif stage == "loading":
             progress_ctx = Progress(
                 SpinnerColumn(),

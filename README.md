@@ -2,7 +2,7 @@
 
 **Free, offline speech-to-text for Mac with Apple Silicon.**
 
-Uses OpenAI Whisper running 100% locally with GPU acceleration (MPS).
+Uses MLX Whisper running 100% locally with native Apple Silicon GPU acceleration.
 
 ---
 
@@ -11,11 +11,7 @@ Uses OpenAI Whisper running 100% locally with GPU acceleration (MPS).
 ### Option 1: One-shot with uvx (recommended)
 
 ```bash
-# Using git URL (works without publishing to PyPI)
 uvx git+https://github.com/vgmakeev/free-whisper-mps-speach-to-text.git meeting.mp4
-
-# Or if published to PyPI:
-uvx whisper-transcribe meeting.mp4
 ```
 
 ### Option 2: Install globally
@@ -34,27 +30,20 @@ transcribe meeting.mp4
 ## 🚀 Use as CLI
 
 ```bash
-# With uvx (one-shot, no installation needed)
-uvx git+https://github.com/vgmakeev/free-whisper-mps-speach-to-text.git meeting.mp4
-
-# Or if installed globally
 transcribe meeting.mp4
+transcribe podcast.mp3 --model large --lang en
+transcribe interview.m4a --output ./result.md
+transcribe call.wav --prompt "Technical discussion about Python"
 ```
 
 ### Options
 
-```bash
-# With uvx
-uvx git+https://github.com/vgmakeev/free-whisper-mps-speach-to-text.git file.mp3 --model large
-uvx git+https://github.com/vgmakeev/free-whisper-mps-speach-to-text.git file.mp3 --lang en
-uvx git+https://github.com/vgmakeev/free-whisper-mps-speach-to-text.git file.mp3 --output out.md
-
-# Or if installed globally
-transcribe file.mp3 --model large    # Better quality
-transcribe file.mp3 --lang en        # Specify language
-transcribe file.mp3 --output out.md  # Custom output path
-transcribe file.mp3 --prompt "..."   # Context hint
-```
+| Option | Description |
+|--------|-------------|
+| `-m, --model` | Model: tiny, base, small, **medium** (default), large, turbo |
+| `-l, --lang` | Language code (e.g., ru, en). Auto-detect if not specified |
+| `-o, --output` | Custom output path |
+| `-p, --prompt` | Context hint for better accuracy |
 
 ---
 
@@ -62,7 +51,7 @@ transcribe file.mp3 --prompt "..."   # Context hint
 
 Add to your Claude/Cursor config:
 
-### Option 1: With uvx (no installation needed)
+### With uvx (no installation needed)
 
 ```json
 {
@@ -70,6 +59,7 @@ Add to your Claude/Cursor config:
     "whisper": {
       "command": "uvx",
       "args": [
+        "--from",
         "git+https://github.com/vgmakeev/free-whisper-mps-speach-to-text.git",
         "transcribe-mcp"
       ]
@@ -78,7 +68,7 @@ Add to your Claude/Cursor config:
 }
 ```
 
-### Option 2: With global installation
+### With global installation
 
 ```json
 {
@@ -111,15 +101,26 @@ Then ask Claude:
 
 ## 🧠 Models
 
-| Model | Size | Speed | Quality |
-|-------|------|-------|---------|
-| tiny | 39 MB | ⚡⚡⚡ | Basic |
-| base | 74 MB | ⚡⚡ | Good |
-| small | 244 MB | ⚡ | Better |
-| **medium** | 769 MB | 🐢 | **Recommended** |
-| large | 1.5 GB | 🐢🐢 | Best |
+| Model | Speed | Quality |
+|-------|-------|---------|
+| tiny | ⚡⚡⚡ | Basic |
+| base | ⚡⚡ | Good |
+| small | ⚡ | Better |
+| **medium** | 🐢 | **Recommended** |
+| large | 🐢🐢 | Best |
+| **turbo** | ⚡⚡ | Great (fast + quality) |
 
-Models download automatically on first use.
+Models download automatically from Hugging Face on first use.
+
+---
+
+## 🍎 Why MLX?
+
+This tool uses [MLX Whisper](https://github.com/ml-explore/mlx-examples) — Apple's native ML framework optimized for Apple Silicon. Benefits:
+
+- **Native GPU acceleration** — uses Metal directly, no PyTorch/MPS issues
+- **Fast** — optimized for M1/M2/M3 chips
+- **Reliable** — no NaN errors or compatibility problems
 
 ---
 

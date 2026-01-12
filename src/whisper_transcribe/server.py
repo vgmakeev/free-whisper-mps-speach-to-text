@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MCP server for audio/video transcription using OpenAI Whisper.
+MCP server for audio/video transcription using MLX Whisper (Apple Silicon optimized).
 """
 
 import os
@@ -33,10 +33,10 @@ async def list_tools() -> list[Tool]:
     return [
         Tool(
             name="transcribe",
-            description="""Transcribe audio/video file to text using OpenAI Whisper.
+            description="""Transcribe audio/video file to text using MLX Whisper.
 
 Supports formats: mp3, wav, m4a, flac, ogg, mp4, webm, mkv, avi, mov.
-Uses Apple Silicon MPS acceleration when available.
+Optimized for Apple Silicon (MLX acceleration).
 
 The transcript is saved as a Markdown file next to the source file (in ./Transcripts/ folder)
 and the content is also returned directly.""",
@@ -49,9 +49,9 @@ and the content is also returned directly.""",
                     },
                     "model": {
                         "type": "string",
-                        "enum": AVAILABLE_MODELS,
+                        "enum": list(AVAILABLE_MODELS.keys()),
                         "default": "medium",
-                        "description": "Whisper model size (tiny/base/small/medium/large)",
+                        "description": "Whisper model size (tiny/base/small/medium/large/turbo)",
                     },
                     "language": {
                         "type": "string",
@@ -90,24 +90,24 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
     """Handle tool calls."""
     
     if name == "transcribe_info":
-        info = f"""# Whisper Transcribe
+        info = f"""# Whisper Transcribe (MLX)
 
 ## Supported Formats
 **Audio:** {', '.join(sorted(f for f in SUPPORTED_FORMATS if f in {'.mp3', '.wav', '.m4a', '.flac', '.ogg', '.wma', '.aac'}))}
 **Video:** {', '.join(sorted(f for f in SUPPORTED_FORMATS if f in {'.mp4', '.webm', '.mkv', '.avi', '.mov'}))}
 
 ## Available Models
-| Model | Size | Speed | Quality |
-|-------|------|-------|---------|
-| tiny | 39 MB | Fastest | Basic |
-| base | 74 MB | Fast | Good |
-| small | 244 MB | Medium | Better |
-| **medium** | 769 MB | Slower | Great (recommended) |
-| large | 1.5 GB | Slow | Best |
-| large-v2 | 1.5 GB | Slow | Best |
-| large-v3 | 1.5 GB | Slow | Best |
+| Model | Speed | Quality |
+|-------|-------|---------|
+| tiny | ⚡⚡⚡ | Basic |
+| base | ⚡⚡ | Good |
+| small | ⚡ | Better |
+| **medium** | 🐢 | Great (recommended) |
+| large | 🐢🐢 | Best |
+| **turbo** | ⚡⚡ | Great (fast) |
 
-Models are downloaded automatically on first use to ~/.cache/whisper/
+Models are downloaded automatically from Hugging Face on first use.
+Optimized for Apple Silicon using MLX.
 """
         return [TextContent(type="text", text=info)]
     

@@ -1,19 +1,29 @@
 """
-Core transcription logic using OpenAI Whisper.
+Core transcription logic using MLX Whisper (optimized for Apple Silicon).
 """
 
 import os
 from dataclasses import dataclass
 from datetime import datetime
 
-import torch
-import whisper
+import mlx_whisper
 
 SUPPORTED_FORMATS = {
     ".mp3", ".wav", ".m4a", ".flac", ".ogg", ".wma", ".aac",
     ".mp4", ".webm", ".mkv", ".avi", ".mov",
 }
-AVAILABLE_MODELS = ["tiny", "base", "small", "medium", "large", "large-v2", "large-v3"]
+
+# MLX Whisper models from Hugging Face
+AVAILABLE_MODELS = {
+    "tiny": "mlx-community/whisper-tiny",
+    "base": "mlx-community/whisper-base",
+    "small": "mlx-community/whisper-small",
+    "medium": "mlx-community/whisper-medium",
+    "large": "mlx-community/whisper-large-v3",
+    "large-v2": "mlx-community/whisper-large-v2-mlx",
+    "large-v3": "mlx-community/whisper-large-v3",
+    "turbo": "mlx-community/whisper-large-v3-turbo",
+}
 
 
 @dataclass
@@ -42,13 +52,6 @@ def format_timestamp(seconds: float) -> str:
     return f"{mins:02d}:{secs:02d}"
 
 
-def get_device() -> str:
-    """Detect best available device."""
-    if torch.backends.mps.is_available():
-        return "mps"
-    return "cpu"
-
-
 def transcribe_file(
     file_path: str,
     model_name: str = "medium",
@@ -57,11 +60,11 @@ def transcribe_file(
     on_progress: callable = None,
 ) -> TranscriptResult:
     """
-    Transcribe audio/video file.
+    Transcribe audio/video file using MLX Whisper.
     
     Args:
         file_path: Path to audio/video file
-        model_name: Whisper model name
+        model_name: Whisper model name (tiny, base, small, medium, large, turbo)
         language: Language code (auto-detect if None)
         prompt: Initial prompt for context
         on_progress: Optional callback(stage: str, message: str)
@@ -77,33 +80,32 @@ def transcribe_file(
         raise FileNotFoundError(f"File not found: {file_path}")
     
     if model_name not in AVAILABLE_MODELS:
-        raise ValueError(f"Invalid model: {model_name}. Available: {AVAILABLE_MODELS}")
+        raise ValueError(f"Invalid model: {model_name}. Available: {list(AVAILABLE_MODELS.keys())}")
     
-    device = get_device()
+    model_path = AVAILABLE_MODELS[model_name]
+    device = "mlx"  # MLX always uses Apple Silicon GPU
     
     if on_progress:
-        on_progress("device", f"Using {device.upper()}")
+        on_progress("device", "Using MLX (Apple Silicon)")
     
-    # Load model
+    # Transcribe with MLX Whisper
     if on_progress:
         on_progress("loading", f"Loading {model_name} model...")
     
-    model = whisper.load_model(model_name, device=device)
-    
-    if on_progress:
-        on_progress("loaded", f"Model {model_name} loaded")
-    
-    # Transcribe
-    if on_progress:
-        on_progress("transcribing", "Transcribing...")
-    
-    transcribe_options = {"verbose": False}
+    transcribe_options = {
+        "path_or_hf_repo": model_path,
+        "verbose": False,
+    }
     if language:
         transcribe_options["language"] = language
     if prompt:
         transcribe_options["initial_prompt"] = prompt
     
-    result = model.transcribe(file_path, **transcribe_options)
+    if on_progress:
+        on_progress("loaded", f"Model {model_name} loaded")
+        on_progress("transcribing", "Transcribing...")
+    
+    result = mlx_whisper.transcribe(file_path, **transcribe_options)
     
     if on_progress:
         on_progress("complete", "Transcription complete")
@@ -115,7 +117,7 @@ def transcribe_file(
             end=seg["end"],
             text=seg["text"].strip(),
         )
-        for seg in result["segments"]
+        for seg in result.get("segments", [])
     ]
     
     # Calculate duration
